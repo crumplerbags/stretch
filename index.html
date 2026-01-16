@@ -1,0 +1,53 @@
+<div class="wrap">
+  <img id="stretch" src="franco.png" />
+</div>
+
+<style>
+  .wrap{
+    height: 100vh;              /* full screen height */
+    display: flex;
+    justify-content: center;     /* center horizontally */
+    align-items: center;         /* center vertically */
+    overflow: none;            /* prevents scrollbars as it grows */
+  }
+
+  #stretch{
+    width: 240px;
+    cursor: pointer;
+    display: block;
+    transform-origin: center;
+    will-change: transform;
+  }
+</style>
+
+<script>
+  const img = document.getElementById("stretch");
+
+  let running = false;
+  let scaleX = 1;
+  let lastTime = null;
+
+  const speed = 12.12; // scale per second (slow)
+
+  function animate(t) {
+    if (!running) return;
+
+    if (lastTime === null) lastTime = t;
+    const dt = (t - lastTime) / 1000;
+    lastTime = t;
+
+    scaleX += speed * dt;
+    img.style.transform = `scaleX(${scaleX})`;
+    
+
+    requestAnimationFrame(animate);
+  }
+
+  img.addEventListener("click", () => {
+    running = !running;
+    if (running) {
+      lastTime = null;
+      requestAnimationFrame(animate);
+    }
+  });
+</script>
