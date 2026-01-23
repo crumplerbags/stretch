@@ -1,17 +1,17 @@
 <div class="wrap">
-  <img id="stretch" src="cheers.png" />
+  <img id="stretch" src="pin.png" alt="" />
 </div>
 
 <style>
-  .wrap{
-    height: 100vh;              /* full screen height */
+  .wrap {
+    height: 100vh;
     display: flex;
-    justify-content: center;     /* center horizontally */
-    align-items: center;         /* center vertically */
-    overflow: none;            /* prevents scrollbars as it grows */
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
   }
 
-  #stretch{
+  #stretch {
     width: 240px;
     cursor: pointer;
     display: block;
@@ -24,27 +24,52 @@
   const img = document.getElementById("stretch");
 
   let running = false;
-  let scaleX = 1;
   let lastTime = null;
 
-  const speed = 12.12; // scale per second (slow)
+  // Animation progress from 0 → 1
+  let progress = 0;
+
+  const maxWidthPx = 9200;
+  const duration = 7000; // ms (total time to reach max width)
+
+  // Smooth ease-in-out function (nice and simple)
+  function easeInOutCubic(t) {
+    return t < 0.5
+      ? 4 * t * t * t
+      : 1 - Math.pow(-2 * t + 2, 3) / 2;
+  }
 
   function animate(t) {
     if (!running) return;
 
     if (lastTime === null) lastTime = t;
-    const dt = (t - lastTime) / 1000;
+    const dt = t - lastTime;
     lastTime = t;
 
-    scaleX += speed * dt;
+    // progress grows based on duration
+    progress = Math.min(1, progress + dt / duration);
+
+    const eased = easeInOutCubic(progress);
+
+    // Compute the scale needed to hit maxWidthPx
+    const baseWidth = img.offsetWidth;              // starting width in px
+    const maxScale = maxWidthPx / baseWidth;        // scale needed to reach 1200px
+    const scaleX = 1 + (maxScale - 1) * eased;      // eased scale from 1 → maxScale
+
     img.style.transform = `scaleX(${scaleX})`;
-    
+
+    // Stop at the end (ease-out finishes cleanly)
+    if (progress >= 1) {
+      running = false;
+      return;
+    }
 
     requestAnimationFrame(animate);
   }
 
   img.addEventListener("click", () => {
     running = !running;
+
     if (running) {
       lastTime = null;
       requestAnimationFrame(animate);
